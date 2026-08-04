@@ -72,7 +72,7 @@ body {{
 h1 {{ font-size: 22px; font-weight: 700; }}
 h1 small {{ font-size: 13px; font-weight: 400; color: #8a90a0; margin-left: 8px; }}
 .meta {{ font-size: 12px; color: #8a90a0; }}
-.cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }}
+.cards {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }}
 .card {{
   background: #fff; border-radius: 12px; padding: 14px 16px;
   box-shadow: 0 1px 3px rgba(20,30,60,.06); border: 1px solid #edeff4;
@@ -131,6 +131,9 @@ td.price {{ font-weight: 600; }}
       <div class="value v-red">{wavg} <span style="font-size:13px">元/万金</span></div>
       <div class="sub">按可买量加权</div>
     </div>
+  </div>
+
+  <div class="cards">
     <div class="card">
       <div class="label">在售单数</div>
       <div class="value">{ncnt}</div>
