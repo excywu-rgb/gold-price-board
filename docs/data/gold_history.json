@@ -109,17 +109,26 @@
      "qty_min": 5,
      "qty_max": 5
     }
-   ]
+   ],
+   "total_qty": 242,
+   "total_amount": 1981.66
   },
   {
-   "time": "2026-08-04 11:33:05",
-   "lowest": 4.8,
-   "main_low": 5.9382,
+   "time": "2026-08-04 11:43:48",
+   "lowest": 4.6,
+   "main_low": 5.0,
    "main_high": 8.0,
-   "main_count": 11,
-   "weighted_avg": 7.8861,
+   "main_count": 15,
+   "weighted_avg": 7.655,
+   "total_qty": 252,
+   "total_amount": 1929.07,
    "n_listings": 20,
    "items": [
+    {
+     "price_per_wan": 4.6,
+     "qty_min": 10,
+     "qty_max": 10
+    },
     {
      "price_per_wan": 4.8,
      "qty_min": 1,
@@ -214,11 +223,6 @@
      "price_per_wan": 9.901,
      "qty_min": 100,
      "qty_max": 100
-    },
-    {
-     "price_per_wan": 10.0,
-     "qty_min": 12,
-     "qty_max": 12
     }
    ]
   }

@@ -67,12 +67,16 @@ def stats(items):
     # 加权均价(按最大可买量加权, 反映实际成交倾向)
     total_qty = sum(i["qty_max"] for i in items)
     wavg = sum(i["price_per_wan"] * i["qty_max"] for i in items) / total_qty if total_qty else low
+    # 点天灯: 把所有在售可买量按对应价格全部买下的总金额(元) = Σ(单价 × 可买量)
+    total_amount = sum(i["price_per_wan"] * i["qty_max"] for i in items)
     return {
         "n_listings": n,
         "lowest": low,
         "main_range": [main_low, main_high],
         "main_count": main_cnt,
         "weighted_avg": round(wavg, 4),
+        "total_qty": total_qty,
+        "total_amount": round(total_amount, 2),
         "max_listing": prices[-1],
     }
 
@@ -101,6 +105,8 @@ def main():
         "main_high": st["main_range"][1],
         "main_count": st["main_count"],
         "weighted_avg": st["weighted_avg"],
+        "total_qty": st["total_qty"],
+        "total_amount": st["total_amount"],
         "n_listings": st["n_listings"],
         "items": items,
     }

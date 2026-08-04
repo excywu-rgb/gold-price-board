@@ -21,6 +21,8 @@ def render(data_path, out_path):
         "main_low": r["main_low"],
         "main_high": r["main_high"],
         "n": r["n_listings"],
+        "total_qty": r.get("total_qty", 0),
+        "total_amount": r.get("total_amount", 0),
     } for r in hist]
 
     items = (cur or {}).get("items", [])
@@ -35,6 +37,10 @@ def render(data_path, out_path):
     mlo = fmt(cur["main_low"]) if cur else "--"
     mhi = fmt(cur["main_high"]) if cur else "--"
     ncnt = cur["n_listings"] if cur else 0
+    total_qty = (cur or {}).get("total_qty") or 0
+    total_amount = (cur or {}).get("total_amount") or 0
+    tq = f"{total_qty:,.0f}" if total_qty else "--"
+    ta = f"¥{total_amount:,.0f}" if total_amount else "--"
 
     # 表格行
     rows = ""
@@ -81,6 +87,14 @@ h1 small {{ font-size: 13px; font-weight: 400; color: #8a90a0; margin-left: 8px;
   box-shadow: 0 1px 3px rgba(20,30,60,.06); border: 1px solid #edeff4; margin-bottom: 20px;
 }}
 .panel h2 {{ font-size: 15px; font-weight: 600; margin-bottom: 14px; }}
+.panel-head {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }}
+.panel-head h2 {{ margin-bottom: 0; }}
+.range-switch {{ display: flex; gap: 4px; background: #eef0f6; border-radius: 8px; padding: 3px; }}
+.range-switch button {{
+  border: none; background: transparent; padding: 5px 14px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; color: #8a90a0; cursor: pointer;
+}}
+.range-switch button.active {{ background: #fff; color: #1f2430; box-shadow: 0 1px 2px rgba(20,30,60,.12); }}
 .chart-box {{ position: relative; height: 320px; }}
 table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
 th, td {{ padding: 8px 10px; text-align: left; border-bottom: 1px solid #f0f1f6; }}
@@ -122,10 +136,27 @@ td.price {{ font-weight: 600; }}
       <div class="value">{ncnt}</div>
       <div class="sub">最后抓取：{cur_ts}</div>
     </div>
+    <div class="card">
+      <div class="label">总可买量</div>
+      <div class="value">{tq} <span style="font-size:13px">万金</span></div>
+      <div class="sub">全部在售可买量合计</div>
+    </div>
+    <div class="card">
+      <div class="label">点天灯</div>
+      <div class="value v-red">{ta}</div>
+      <div class="sub">按挂牌价买光全部在售</div>
+    </div>
   </div>
 
   <div class="panel">
-    <h2>金价走势</h2>
+    <div class="panel-head">
+      <h2>金价走势</h2>
+      <div class="range-switch" id="rangeSwitch">
+        <button data-range="24h" class="active">24h</button>
+        <button data-range="7d">7d</button>
+        <button data-range="30d">30d</button>
+      </div>
+    </div>
     <div class="chart-box"><canvas id="trend"></canvas></div>
   </div>
 
@@ -151,23 +182,21 @@ const SERIES = {js_series};
       '<div style="padding:40px;text-align:center;color:#9aa0b0">图表库加载失败，请联网后刷新页面</div>';
     return;
   }}
-  const times = SERIES.map(r => r.time.slice(5, 16));
+  const RANGES = {{ "24h": 24 * 3600e3, "7d": 7 * 24 * 3600e3, "30d": 30 * 24 * 3600e3 }};
   const mk = (key, color, label) => ({{
-    label, data: SERIES.map(r => r[key]), borderColor: color,
+    label, data: [], borderColor: color,
     backgroundColor: color + "22", borderWidth: 2, pointRadius: 3,
     tension: 0.25, fill: false,
   }});
-  new Chart(document.getElementById("trend"), {{
+  const datasets = [
+    mk("lowest", "#30a46c", "最低挂牌"),
+    mk("weighted_avg", "#e5484d", "加权均价"),
+    mk("main_low", "#8b5cf6", "主流下限"),
+    mk("main_high", "#f59f00", "主流上限"),
+  ];
+  const chart = new Chart(document.getElementById("trend"), {{
     type: "line",
-    data: {{
-      labels: times,
-      datasets: [
-        mk("lowest", "#30a46c", "最低挂牌"),
-        mk("weighted_avg", "#e5484d", "加权均价"),
-        mk("main_low", "#8b5cf6", "主流下限"),
-        mk("main_high", "#f59f00", "主流上限"),
-      ],
-    }},
+    data: {{ labels: [], datasets }},
     options: {{
       responsive: true, maintainAspectRatio: false,
       interaction: {{ mode: "index", intersect: false }},
@@ -181,6 +210,25 @@ const SERIES = {js_series};
       }}
     }}
   }});
+  function render(range) {{
+    const cutoff = Date.now() - RANGES[range];
+    const rows = SERIES.filter(r => {{
+      const ts = new Date(r.time.replace(" ", "T")).getTime();
+      return !isNaN(ts) && ts >= cutoff;
+    }});
+    chart.data.labels = rows.map(r => r.time.slice(5));
+    const keys = ["lowest", "weighted_avg", "main_low", "main_high"];
+    keys.forEach((k, i) => {{ datasets[i].data = rows.map(r => r[k]); }});
+    chart.update();
+  }}
+  document.getElementById("rangeSwitch").addEventListener("click", e => {{
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    document.querySelectorAll("#rangeSwitch button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    render(btn.dataset.range);
+  }});
+  render("24h");
 }})();
 </script>
 </body>
