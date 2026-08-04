@@ -21,13 +21,13 @@
   --text-3: #5c6b84;
   --up: #34d399;
   --down: #f87171;
-  --radius: 14px;
+  --radius: 18px;
   --shadow: 0 2px 12px rgba(0,0,0,.35), 0 0 0 1px rgba(245,197,66,.04) inset;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-font-smoothing: antialiased; }
 body {
-  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  font-family: "PingFang SC Rounded", "PingFang SC", "Microsoft YaHei", "Segoe UI", "Helvetica Neue", sans-serif;
   background:
     radial-gradient(1200px 600px at 50% -10%, rgba(245,197,66,.06), transparent 60%),
     linear-gradient(180deg, var(--bg-1), var(--bg-0));
@@ -46,7 +46,7 @@ body {
   background: linear-gradient(90deg, var(--gold-dim), var(--gold) 30%, transparent 70%);
   opacity: .5;
 }
-h1 { font-size: 23px; font-weight: 800; letter-spacing: .02em; }
+h1 { font-size: 23px; font-weight: 800; letter-spacing: .03em; }
 h1 .mascot {
   display: inline-flex; align-items: center; justify-content: center;
   width: 26px; height: 26px; margin-right: 8px; border-radius: 8px;
@@ -55,7 +55,7 @@ h1 .mascot {
   box-shadow: 0 0 0 1px rgba(245,197,66,.35), 0 0 16px rgba(245,197,66,.25);
   vertical-align: -5px;
 }
-h1 small { font-size: 13px; font-weight: 400; color: var(--text-2); margin-left: 8px; }
+h1 small { font-size: 13px; font-weight: 500; color: var(--text-2); margin-left: 8px; letter-spacing: .04em; }
 .meta { font-size: 12px; color: var(--text-3); letter-spacing: .02em; }
 .meta b { color: var(--gold-soft); font-weight: 600; }
 .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
