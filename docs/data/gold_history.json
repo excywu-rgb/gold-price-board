@@ -225,6 +225,119 @@
      "qty_max": 100
     }
    ]
+  },
+  {
+   "time": "2026-08-04 13:35:28",
+   "lowest": 4.5,
+   "main_low": 5.0,
+   "main_high": 8.3333,
+   "main_count": 15,
+   "weighted_avg": 8.0817,
+   "total_qty": 281,
+   "total_amount": 2270.97,
+   "n_listings": 20,
+   "items": [
+    {
+     "price_per_wan": 4.5,
+     "qty_min": 3,
+     "qty_max": 3
+    },
+    {
+     "price_per_wan": 5.0,
+     "qty_min": 10,
+     "qty_max": 10
+    },
+    {
+     "price_per_wan": 5.0,
+     "qty_min": 8,
+     "qty_max": 8
+    },
+    {
+     "price_per_wan": 5.0,
+     "qty_min": 1,
+     "qty_max": 10
+    },
+    {
+     "price_per_wan": 5.0,
+     "qty_min": 1,
+     "qty_max": 1
+    },
+    {
+     "price_per_wan": 5.0,
+     "qty_min": 20,
+     "qty_max": 20
+    },
+    {
+     "price_per_wan": 5.9382,
+     "qty_min": 10,
+     "qty_max": 10
+    },
+    {
+     "price_per_wan": 5.95,
+     "qty_min": 7,
+     "qty_max": 7
+    },
+    {
+     "price_per_wan": 6.5,
+     "qty_min": 10,
+     "qty_max": 10
+    },
+    {
+     "price_per_wan": 6.6667,
+     "qty_min": 10,
+     "qty_max": 10
+    },
+    {
+     "price_per_wan": 6.6667,
+     "qty_min": 10,
+     "qty_max": 10
+    },
+    {
+     "price_per_wan": 6.6667,
+     "qty_min": 2,
+     "qty_max": 2
+    },
+    {
+     "price_per_wan": 8.0,
+     "qty_min": 12,
+     "qty_max": 12
+    },
+    {
+     "price_per_wan": 8.0,
+     "qty_min": 2,
+     "qty_max": 2
+    },
+    {
+     "price_per_wan": 8.0,
+     "qty_min": 1,
+     "qty_max": 1
+    },
+    {
+     "price_per_wan": 8.3333,
+     "qty_min": 5,
+     "qty_max": 5
+    },
+    {
+     "price_per_wan": 8.9,
+     "qty_min": 40,
+     "qty_max": 40
+    },
+    {
+     "price_per_wan": 9.0,
+     "qty_min": 8,
+     "qty_max": 8
+    },
+    {
+     "price_per_wan": 9.901,
+     "qty_min": 100,
+     "qty_max": 100
+    },
+    {
+     "price_per_wan": 10.0,
+     "qty_min": 12,
+     "qty_max": 12
+    }
+   ]
   }
  ]
 }
