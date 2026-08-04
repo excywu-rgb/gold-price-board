@@ -109,6 +109,18 @@ td.price { font-weight: 600; }
   </div>
 
   <div class="panel">
+    <div class="panel-head">
+      <h2>可买量走势</h2>
+      <div class="range-switch" id="rangeSwitchQty">
+        <button data-range="24h" class="active">24h</button>
+        <button data-range="7d">7d</button>
+        <button data-range="30d">30d</button>
+      </div>
+    </div>
+    <div class="chart-box"><canvas id="qtyTrend"></canvas></div>
+  </div>
+
+  <div class="panel">
     <h2>当前在售明细（20 单）</h2>
     <table>
       <thead><tr><th>单价（元/万金）</th><th>可买量（万）</th></tr></thead>
@@ -126,25 +138,28 @@ td.price { font-weight: 600; }
 const SERIES = [{"time": "2026-08-04 10:40:06", "lowest": 5.0, "weighted_avg": 8.1887, "main_low": 5.94, "main_high": 8.3333, "n": 20, "total_qty": 242, "total_amount": 1981.66}, {"time": "2026-08-04 11:43:48", "lowest": 4.6, "weighted_avg": 7.655, "main_low": 5.0, "main_high": 8.0, "n": 20, "total_qty": 252, "total_amount": 1929.07}];
 (function () {
   if (typeof Chart === "undefined") {
-    document.querySelector(".chart-box").innerHTML =
-      '<div style="padding:40px;text-align:center;color:#9aa0b0">图表库加载失败，请联网后刷新页面</div>';
+    document.querySelectorAll(".chart-box").forEach(box => {
+      box.innerHTML = '<div style="padding:40px;text-align:center;color:#9aa0b0">图表库加载失败，请联网后刷新页面</div>';
+    });
     return;
   }
   const RANGES = { "24h": 24 * 3600e3, "7d": 7 * 24 * 3600e3, "30d": 30 * 24 * 3600e3 };
-  const mk = (key, color, label) => ({
-    label, data: [], borderColor: color,
-    backgroundColor: color + "22", borderWidth: 2, pointRadius: 3,
-    tension: 0.25, fill: false,
-  });
-  const datasets = [
-    mk("lowest", "#30a46c", "最低挂牌"),
-    mk("weighted_avg", "#e5484d", "加权均价"),
-    mk("main_low", "#8b5cf6", "主流下限"),
-    mk("main_high", "#f59f00", "主流上限"),
-  ];
-  const chart = new Chart(document.getElementById("trend"), {
+  function sliceByRange(range) {
+    const cutoff = Date.now() - RANGES[range];
+    return SERIES.filter(r => {
+      const ts = new Date(r.time.replace(" ", "T")).getTime();
+      return !isNaN(ts) && ts >= cutoff;
+    });
+  }
+
+  const priceChart = new Chart(document.getElementById("trend"), {
     type: "line",
-    data: { labels: [], datasets },
+    data: { labels: [], datasets: [
+      { label: "最低挂牌", data: [], borderColor: "#30a46c", backgroundColor: "#30a46c22", borderWidth: 2, pointRadius: 3, tension: 0.25, fill: false },
+      { label: "加权均价", data: [], borderColor: "#e5484d", backgroundColor: "#e5484d22", borderWidth: 2, pointRadius: 3, tension: 0.25, fill: false },
+      { label: "主流下限", data: [], borderColor: "#8b5cf6", backgroundColor: "#8b5cf622", borderWidth: 2, pointRadius: 3, tension: 0.25, fill: false },
+      { label: "主流上限", data: [], borderColor: "#f59f00", backgroundColor: "#f59f0022", borderWidth: 2, pointRadius: 3, tension: 0.25, fill: false },
+    ] },
     options: {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
@@ -158,24 +173,47 @@ const SERIES = [{"time": "2026-08-04 10:40:06", "lowest": 5.0, "weighted_avg": 8
       }
     }
   });
-  function render(range) {
-    const cutoff = Date.now() - RANGES[range];
-    const rows = SERIES.filter(r => {
-      const ts = new Date(r.time.replace(" ", "T")).getTime();
-      return !isNaN(ts) && ts >= cutoff;
-    });
-    chart.data.labels = rows.map(r => r.time.slice(5));
-    const keys = ["lowest", "weighted_avg", "main_low", "main_high"];
-    keys.forEach((k, i) => { datasets[i].data = rows.map(r => r[k]); });
-    chart.update();
-  }
-  document.getElementById("rangeSwitch").addEventListener("click", e => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    document.querySelectorAll("#rangeSwitch button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    render(btn.dataset.range);
+  const qtyChart = new Chart(document.getElementById("qtyTrend"), {
+    type: "bar",
+    data: { labels: [], datasets: [
+      { label: "总可买量", data: [], backgroundColor: "#3b82f6", borderRadius: 3, maxBarThickness: 32 },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        y: { title: { display: true, text: "万金" }, ticks: { callback: v => v.toFixed(0) } },
+        x: { ticks: { maxTicksLimit: 12 } }
+      },
+      plugins: {
+        legend: { position: "bottom" },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.parsed.y.toFixed(0) + " 万金" } }
+      }
+    }
   });
+
+  function render(range) {
+    const rows = sliceByRange(range);
+    const labels = rows.map(r => r.time.slice(5));
+    const keys = ["lowest", "weighted_avg", "main_low", "main_high"];
+    priceChart.data.labels = labels;
+    keys.forEach((k, i) => { priceChart.data.datasets[i].data = rows.map(r => r[k]); });
+    qtyChart.data.labels = labels;
+    qtyChart.data.datasets[0].data = rows.map(r => r.total_qty || 0);
+    priceChart.update();
+    qtyChart.update();
+  }
+  function bindSwitch(swId) {
+    document.getElementById(swId).addEventListener("click", e => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      document.querySelectorAll("#" + swId + " button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render(btn.dataset.range);
+    });
+  }
+  bindSwitch("rangeSwitch");
+  bindSwitch("rangeSwitchQty");
   render("24h");
 })();
 </script>
