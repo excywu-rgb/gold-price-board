@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: 抓取 DD373 金价
-        run: python3 scripts/fetch_gold.py docs/data/gold_history.json
+        run: python3 scripts/fetch_gold.py --out docs/data/gold_history.json
 
       - name: 生成看板 HTML
         run: python3 scripts/generate_html.py docs/data/gold_history.json docs/index.html
