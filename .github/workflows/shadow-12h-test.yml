@@ -1,0 +1,109 @@
+name: 真实数据源 12 小时影子测试
+
+on:
+  schedule:
+    # 北京时间每小时第 37 分。测试窗口由 gate 步骤严格限制。
+    - cron: "37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: gold-price-shadow-12h
+  cancel-in-progress: false
+
+env:
+  # 北京时间 2026-08-04 17:30 至 2026-08-05 05:00。
+  # 预期采样点：17:37、18:37……次日 04:37，共 12 次。
+  TEST_START_EPOCH: "1785835800"
+  TEST_END_EPOCH: "1785877200"
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      active: ${{ steps.window.outputs.active }}
+      expired: ${{ steps.window.outputs.expired }}
+    steps:
+      - id: window
+        name: 检查 12 小时测试窗口
+        shell: bash
+        run: |
+          now="$(date -u +%s)"
+          if [ "$now" -ge "$TEST_START_EPOCH" ] && [ "$now" -le "$TEST_END_EPOCH" ]; then
+            echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "expired=false" >> "$GITHUB_OUTPUT"
+          elif [ "$now" -gt "$TEST_END_EPOCH" ]; then
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "expired=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            echo "expired=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  probe:
+    needs: gate
+    if: needs.gate.outputs.active == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 从真实 DD373 数据源执行影子抓取
+        run: python3 scripts/shadow_probe.py --out "$RUNNER_TEMP/probe.json"
+
+      - name: 上传单次原始证据
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow-probe-${{ github.run_id }}
+          path: ${{ runner.temp }}/probe.json
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: 写入独立证据分支
+        shell: bash
+        env:
+          RESULT_FILE: ${{ runner.temp }}/probe.json
+        run: |
+          stamp="$(jq -r '.started_at_utc' "$RESULT_FILE" | tr ':+' '--')"
+          result_name="${stamp}-run-${GITHUB_RUN_ID}.json"
+          cp "$RESULT_FILE" /tmp/gold-shadow-probe.json
+          git config user.name "gold-shadow-probe"
+          git config user.email "gold-shadow-probe@users.noreply.github.com"
+          if git fetch origin shadow-test-results; then
+            git checkout -B shadow-test-results origin/shadow-test-results
+          else
+            git checkout --orphan shadow-test-results
+            git rm -rf .
+          fi
+          mkdir -p results
+          cp /tmp/gold-shadow-probe.json "results/$result_name"
+          git add "results/$result_name"
+          git commit -m "test: 记录真实源影子样本 ${stamp}"
+          git push origin HEAD:shadow-test-results
+
+      - name: 将校验失败反映为 Actions 失败
+        shell: bash
+        run: |
+          if [ "$(jq -r '.success' "$RUNNER_TEMP/probe.json")" != "true" ]; then
+            exit 1
+          fi
+
+  auto_disable:
+    needs: gate
+    if: needs.gate.outputs.expired == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 测试窗口结束后停用本工作流
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          curl --fail-with-body --location --request PUT \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/shadow-12h-test.yml/disable"
