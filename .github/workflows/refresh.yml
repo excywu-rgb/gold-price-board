@@ -1,0 +1,29 @@
+name: 金价数据每小时刷新
+
+on:
+  schedule:
+    # 每小时第 17 分钟运行，避开整点高峰
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 抓取 DD373 金价
+        run: python3 scripts/fetch_gold.py docs/data/gold_history.json
+
+      - name: 生成看板 HTML
+        run: python3 scripts/generate_html.py docs/data/gold_history.json docs/index.html
+
+      - name: 提交并推送更新
+        run: python3 scripts/commit_state.py
