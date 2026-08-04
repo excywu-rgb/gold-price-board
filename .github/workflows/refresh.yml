@@ -3,6 +3,7 @@ name: 金价数据每小时刷新
 on:
   schedule:
     # 每小时第 17 分钟运行，避开整点高峰
+    # 注：新仓库的 cron 需推送本文件变更触发 GitHub 调度器重新注册
     - cron: "17 * * * *"
   workflow_dispatch:
 
