@@ -55,6 +55,7 @@ def main():
         "github": {
             "run_id": os.environ.get("GITHUB_RUN_ID"),
             "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
+            "event_name": os.environ.get("GITHUB_EVENT_NAME"),
             "sha": os.environ.get("GITHUB_SHA"),
         },
     }

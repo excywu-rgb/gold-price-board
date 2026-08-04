@@ -15,10 +15,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  # 北京时间 2026-08-04 17:30 至 2026-08-05 05:00。
-  # 预期采样点：17:37、18:37……次日 04:37，共 12 次。
-  TEST_START_EPOCH: "1785835800"
-  TEST_END_EPOCH: "1785877200"
+  # 北京时间 2026-08-04 18:30 至 2026-08-05 06:00。
+  # 预期采样点：18:37、19:37……次日 05:37，共 12 次。
+  TEST_START_EPOCH: "1785839400"
+  TEST_END_EPOCH: "1785880800"
 
 jobs:
   gate:
@@ -32,7 +32,10 @@ jobs:
         shell: bash
         run: |
           now="$(date -u +%s)"
-          if [ "$now" -ge "$TEST_START_EPOCH" ] && [ "$now" -le "$TEST_END_EPOCH" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "active=true" >> "$GITHUB_OUTPUT"
+            echo "expired=false" >> "$GITHUB_OUTPUT"
+          elif [ "$now" -ge "$TEST_START_EPOCH" ] && [ "$now" -le "$TEST_END_EPOCH" ]; then
             echo "active=true" >> "$GITHUB_OUTPUT"
             echo "expired=false" >> "$GITHUB_OUTPUT"
           elif [ "$now" -gt "$TEST_END_EPOCH" ]; then
