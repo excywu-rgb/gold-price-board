@@ -5,8 +5,9 @@
 抓取 DD373 上"冒险岛怀旧服 → 国服 → 漂漂猪"区的游戏币挂牌价。
 用法: python3 fetch_gold.py [--out /path/to/data.json]
 """
-import re, json, sys, gzip, time
+import re, json, sys, gzip
 import urllib.request
+from urllib.parse import urljoin
 from datetime import datetime, timezone, timedelta
 
 URL = "https://www.dd373.com/s-063g3j-c-et9e1b-7ewcb6-gsgchv.html"
@@ -18,9 +19,9 @@ HEADERS = {
     "Referer": "https://www.dd373.com/s-063g3j-c-et9e1b-7ewcb6.html",
 }
 
-def fetch_raw():
-    """返回 (html, http_date) —— http_date 为服务器返回的真实时间(naive, 已转UTC+8)"""
-    req = urllib.request.Request(URL, headers=HEADERS)
+def fetch_url(url):
+    """返回 (html, http_date)；http_date 为服务器时间（UTC+8 naive）。"""
+    req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=30) as r:
         data = r.read()
         if r.headers.get("Content-Encoding") == "gzip":
@@ -35,9 +36,36 @@ def fetch_raw():
             server_cst = now_cst()
         return data.decode("utf-8", "ignore"), server_cst
 
+
+def fetch_raw():
+    """兼容旧调用：只读取列表第一页。"""
+    return fetch_url(URL)
+
+
+def discover_page_urls(html):
+    """从分页器读取全部数字页链接；第一页始终使用规范 URL。"""
+    urls = [URL]
+    box = re.search(r'<div id="pagination-box">(.*?)</div>\s*</div>', html, re.S)
+    scope = box.group(1) if box else html
+    for href, label in re.findall(
+        r'<a\s+href="([^"]+)"[^>]*class="[^"]*ui-pagination-page-item[^"]*"[^>]*>\s*(\d+)\s*</a>',
+        scope,
+        re.S,
+    ):
+        if int(label) > 1:
+            url = urljoin(URL, href)
+            if url not in urls:
+                urls.append(url)
+    return urls
+
+
+def reported_listing_count(html):
+    m = re.search(r'为您找到\s*<span[^>]*>\s*(\d+)\s*</span>\s*条记录', html)
+    return int(m.group(1)) if m else None
+
 def parse_items(html):
     """解析商品列表。返回 [{price_per_wan, qty_min, qty_max}]"""
-    blocks = re.split(r'<p class="game-qufu-attr">', html)
+    blocks = re.split(r'<div class="goods-list-item\b[^>]*>', html)
     items = []
     for b in blocks[1:]:
         m = re.search(r'singleprice="([0-9.]+)"', b)
@@ -47,8 +75,43 @@ def parse_items(html):
         num = re.search(r'value="\d+"\s+min="(\d+)"\s+max="(\d+)"\s+singleprice', b)
         nmin = int(num.group(1)) if num else 0
         nmax = int(num.group(2)) if num else 0
-        items.append({"price_per_wan": round(sp, 4), "qty_min": nmin, "qty_max": nmax})
+        shop = re.search(r'[?&]shopNumber=([^&"]+)', b)
+        item = {"price_per_wan": round(sp, 4), "qty_min": nmin, "qty_max": nmax}
+        if shop:
+            item["shop_number"] = shop.group(1)
+        items.append(item)
     return items
+
+
+def fetch_all_items():
+    """遍历 DD373 全部分页，并核对页面宣称的挂牌总数。"""
+    first_html, ts = fetch_url(URL)
+    page_urls = discover_page_urls(first_html)
+    pages = [first_html]
+    for url in page_urls[1:]:
+        page_html, _ = fetch_url(url)
+        pages.append(page_html)
+
+    items = []
+    seen = set()
+    for page_html in pages:
+        for item in parse_items(page_html):
+            key = item.get("shop_number") or (
+                item["price_per_wan"], item["qty_min"], item["qty_max"]
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            items.append(item)
+
+    reported = reported_listing_count(first_html)
+    if reported is not None and len(items) < reported:
+        raise RuntimeError(
+            f"分页抓取不完整：页面报告 {reported} 单，实际只解析到 {len(items)} 单"
+        )
+    if not items:
+        raise RuntimeError("未解析到任何挂牌，拒绝覆盖历史数据")
+    return items, ts, len(pages), reported
 
 def stats(items):
     """计算统计指标。返回 dict"""
@@ -95,8 +158,7 @@ def main():
     out = None
     if "--out" in sys.argv:
         out = sys.argv[sys.argv.index("--out") + 1]
-    html, ts = fetch_raw()
-    items = parse_items(html)
+    items, ts, source_pages, source_reported_total = fetch_all_items()
     st = stats(items)
     record = {
         "time": ts.strftime("%Y-%m-%d %H:%M:%S"),
@@ -108,6 +170,9 @@ def main():
         "total_qty": st["total_qty"],
         "total_amount": st["total_amount"],
         "n_listings": st["n_listings"],
+        "source_pages": source_pages,
+        "source_reported_total": source_reported_total,
+        "coverage_complete": source_reported_total is None or st["n_listings"] >= source_reported_total,
         "items": items,
     }
     print(json.dumps(record, ensure_ascii=False, indent=1))

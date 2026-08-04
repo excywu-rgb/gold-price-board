@@ -3,286 +3,299 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>冒险岛怀旧服 · 漂漂猪 金价看板</title>
+<meta name="theme-color" content="#8ed8ff">
+<title>漂漂猪港口交易所 · 金价看板</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
 <style>
 :root {
-  color-scheme: dark;
-  --bg-0: #0b0f17;
-  --bg-1: #111827;
-  --bg-2: #1a2233;
-  --card: #151d2e;
-  --card-border: #24304a;
-  --gold: #f5c542;
-  --gold-soft: #e8b93a;
-  --gold-dim: #8a6d2f;
-  --text-1: #f2f4f8;
-  --text-2: #9aa7bd;
-  --text-3: #5c6b84;
-  --up: #34d399;
-  --down: #f87171;
-  --radius: 18px;
-  --shadow: 0 2px 12px rgba(0,0,0,.35), 0 0 0 1px rgba(245,197,66,.04) inset;
+  color-scheme: light;
+  --sky: #8ed8ff;
+  --sky-deep: #62b8ed;
+  --cream: #fff9df;
+  --paper: #fffdf4;
+  --ink: #17324d;
+  --muted: #6c8092;
+  --ocean: #166c9f;
+  --ocean-deep: #0d466e;
+  --grass: #56b95f;
+  --grass-dark: #287743;
+  --leaf: #ec6a3b;
+  --coin: #ffc83d;
+  --coin-deep: #db8a17;
+  --pink: #ff8ca1;
+  --line: #d7e2df;
+  --shadow: 0 10px 0 rgba(26, 80, 89, .14), 0 18px 38px rgba(30, 90, 120, .16);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-font-smoothing: antialiased; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 body {
-  font-family: "PingFang SC Rounded", "PingFang SC", "Microsoft YaHei", "Segoe UI", "Helvetica Neue", sans-serif;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(245,197,66,.06), transparent 60%),
-    linear-gradient(180deg, var(--bg-1), var(--bg-0));
-  background-attachment: fixed;
-  color: var(--text-1); padding: 32px 16px;
+  margin: 0;
   min-height: 100vh;
+  color: var(--ink);
+  font-family: "Avenir Next Rounded", "SF Pro Rounded", "PingFang SC", "Noto Sans SC", sans-serif;
+  background: var(--sky);
+  line-height: 1.7;
 }
-.wrap { max-width: 960px; margin: 0 auto; }
-.header {
-  display: flex; justify-content: space-between; align-items: flex-end;
-  flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
-  position: relative; padding-bottom: 16px;
+button { font: inherit; }
+.world { min-height: 100vh; position: relative; overflow: hidden; padding: 28px 18px 72px; }
+.world::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,255,255,.84) 0 44px, transparent 46px),
+    radial-gradient(circle at 18% 8%, rgba(255,255,255,.68) 0 63px, transparent 65px),
+    radial-gradient(circle at 88% 16%, rgba(255,255,255,.64) 0 54px, transparent 56px),
+    linear-gradient(180deg, #8ed8ff 0%, #c7efff 53%, #5fc17a 53.2%, #399c59 57%, #1b7183 57.2%, #0f5377 100%);
 }
-.header::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold) 30%, transparent 70%);
-  opacity: .5;
+.world::after {
+  content: ""; position: absolute; left: -5%; right: -5%; top: 49%; height: 120px;
+  border-radius: 50% 50% 0 0; background: #6bc76b; border-top: 8px solid #337f44;
+  transform: rotate(-1deg); pointer-events: none;
 }
-h1 { font-size: 23px; font-weight: 800; letter-spacing: .03em; }
-h1 .mascot {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; margin-right: 8px; border-radius: 8px;
-  background: linear-gradient(135deg, var(--gold), #b8860b);
-  color: #17120a; font-size: 15px; font-weight: 900;
-  box-shadow: 0 0 0 1px rgba(245,197,66,.35), 0 0 16px rgba(245,197,66,.25);
-  vertical-align: -5px;
+.leaf { position: absolute; z-index: 1; width: 18px; height: 10px; border-radius: 90% 10% 90% 10%; background: var(--leaf); opacity: .74; }
+.leaf.a { top: 8%; left: 5%; transform: rotate(24deg); }
+.leaf.b { top: 20%; right: 7%; transform: rotate(-18deg) scale(.72); }
+.leaf.c { top: 47%; left: 2%; transform: rotate(58deg) scale(1.15); }
+.shell { width: min(1180px, 100%); margin: 0 auto; position: relative; z-index: 2; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 52px; height: 52px; display: grid; place-items: center; position: relative;
+  color: #73330d; font-weight: 1000; font-size: 25px; letter-spacing: -.12em;
+  background: var(--coin); border: 4px solid #fff4a7; border-radius: 50%;
+  box-shadow: 0 5px 0 var(--coin-deep), 0 9px 18px rgba(64,90,70,.18);
 }
-h1 small { font-size: 13px; font-weight: 500; color: var(--text-2); margin-left: 8px; letter-spacing: .04em; }
-.meta { font-size: 12px; color: var(--text-3); letter-spacing: .02em; }
-.meta b { color: var(--gold-soft); font-weight: 600; }
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
-.card {
-  background: linear-gradient(160deg, var(--card), #121a2a);
-  border-radius: var(--radius); padding: 16px 18px;
-  border: 1px solid var(--card-border);
-  box-shadow: var(--shadow);
-  position: relative; overflow: hidden;
-  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+.brand-mark::after { content: ""; position: absolute; inset: 7px; border: 2px dashed rgba(130,72,12,.36); border-radius: 50%; }
+.brand-copy strong { display: block; font-size: 21px; letter-spacing: .02em; line-height: 1.15; text-shadow: 0 2px 0 rgba(255,255,255,.45); }
+.brand-copy span { font-size: 12px; font-weight: 750; color: #315f70; letter-spacing: .08em; }
+.status-bar { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border: 2px solid rgba(255,255,255,.72); border-radius: 999px; background: rgba(255,255,255,.52); backdrop-filter: blur(8px); font-size: 12px; font-weight: 750; }
+.status-dot { width: 9px; height: 9px; border-radius: 50%; background: #3cc45a; box-shadow: 0 0 0 4px rgba(60,196,90,.16); }
+.hero {
+  min-height: 278px; display: grid; grid-template-columns: 1.18fr .82fr; overflow: hidden;
+  background: var(--paper); border: 3px solid rgba(255,255,255,.9); border-radius: 30px;
+  box-shadow: var(--shadow); position: relative;
 }
-.card::before {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  opacity: 0; transition: opacity .2s ease;
+.hero-main { padding: 34px 38px 32px; position: relative; background: linear-gradient(135deg, #fffdf2 0%, #fff3c8 100%); }
+.eyebrow { display: flex; align-items: center; gap: 8px; color: var(--grass-dark); font-size: 12px; font-weight: 850; letter-spacing: .12em; }
+.eyebrow::before { content: ""; width: 24px; height: 4px; border-radius: 9px; background: var(--grass); }
+.hero h1 { font-size: clamp(27px, 4vw, 48px); line-height: 1.12; margin: 12px 0 20px; letter-spacing: -.035em; }
+.price-line { display: flex; align-items: end; gap: 10px; flex-wrap: wrap; }
+.big-price { font-size: clamp(58px, 9vw, 96px); line-height: .88; color: var(--leaf); font-weight: 950; letter-spacing: -.055em; font-variant-numeric: tabular-nums; text-shadow: 0 5px 0 #ffd1a9; }
+.unit { color: var(--muted); font-size: 15px; font-weight: 800; padding-bottom: 8px; }
+.movement { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 11px; border-radius: 11px; background: #e8f7e5; color: #287743; font-size: 12px; font-weight: 850; margin-bottom: 6px; }
+.movement.hot { background: #fff0e7; color: #b54a27; }
+.movement.steady { background: #e9f2f8; color: #3d6a83; }
+.hero-side { padding: 30px; color: #eefaff; background: var(--ocean-deep); position: relative; overflow: hidden; }
+.hero-side::before { content: ""; position: absolute; width: 260px; height: 260px; border: 32px solid rgba(255,255,255,.055); border-radius: 50%; right: -100px; bottom: -120px; }
+.quest-label { color: #aee8ff; font-size: 11px; font-weight: 850; letter-spacing: .14em; }
+.hero-side h2 { margin: 6px 0 18px; font-size: 24px; line-height: 1.25; }
+.market-lines { display: grid; gap: 12px; position: relative; }
+.market-line { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,.13); }
+.market-line span { color: #b9dbea; font-size: 12px; }
+.market-line strong { font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; }
+.coverage { display: inline-flex; margin-top: 17px; padding: 6px 10px; color: #153a27; background: #8ee49b; border-radius: 9px; font-size: 11px; font-weight: 900; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 18px 0; }
+.stat {
+  min-height: 126px; padding: 18px; position: relative; overflow: hidden;
+  border: 3px solid rgba(255,255,255,.86); border-radius: 22px; background: rgba(255,253,244,.94);
+  box-shadow: 0 7px 0 rgba(20,78,89,.12), 0 14px 28px rgba(21,89,109,.10);
+  transition: transform .18s ease, box-shadow .18s ease;
 }
-.card:hover { transform: translateY(-2px); border-color: #33415f; box-shadow: 0 6px 20px rgba(0,0,0,.45); }
-.card:hover::before { opacity: .8; }
-.card .label { font-size: 12px; color: var(--text-3); margin-bottom: 8px; letter-spacing: .06em; font-weight: 600; }
-.card .value { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
-.card .value .unit { font-size: 12px; font-weight: 500; color: var(--text-3); margin-left: 4px; }
-.card .sub { font-size: 11px; color: var(--text-3); margin-top: 6px; }
-.v-gold { color: var(--gold); }
-.v-up { color: var(--up); }
-.v-down { color: var(--down); }
-.panel {
-  background: linear-gradient(160deg, var(--card), #121a2a);
-  border-radius: var(--radius); padding: 20px;
-  border: 1px solid var(--card-border);
-  box-shadow: var(--shadow); margin-bottom: 18px;
+.stat:hover { transform: translateY(-4px); box-shadow: 0 11px 0 rgba(20,78,89,.11), 0 18px 34px rgba(21,89,109,.14); }
+.stat-label { color: var(--muted); font-size: 11px; font-weight: 850; letter-spacing: .08em; }
+.stat-value { margin-top: 8px; font-size: clamp(23px, 3vw, 31px); line-height: 1.15; font-weight: 950; font-variant-numeric: tabular-nums; }
+.stat-value.gold { color: #c47a0b; }
+.stat-value.blue { color: var(--ocean); }
+.stat-sub { margin-top: 8px; color: #8293a0; font-size: 11px; font-weight: 650; }
+.panel-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, .5fr); gap: 18px; align-items: stretch; }
+.panel { background: var(--paper); border: 3px solid rgba(255,255,255,.88); border-radius: 26px; box-shadow: var(--shadow); overflow: hidden; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 24px 12px; flex-wrap: wrap; }
+.panel-title { display: flex; align-items: center; gap: 10px; }
+.panel-title i { width: 13px; height: 13px; transform: rotate(45deg); border-radius: 3px; background: var(--leaf); box-shadow: 3px 3px 0 #ffc0a0; }
+.panel h2 { margin: 0; font-size: 17px; }
+.panel-kicker { color: var(--muted); font-size: 11px; font-weight: 700; }
+.switch { display: flex; gap: 4px; padding: 4px; background: #e8f0eb; border-radius: 13px; }
+.switch button, .filter button { border: 0; cursor: pointer; font-size: 11px; font-weight: 850; color: #6b7e86; background: transparent; border-radius: 9px; padding: 7px 11px; transition: .16s ease; }
+.switch button:hover, .filter button:hover { color: var(--ink); }
+.switch button.active, .filter button.active { color: #fff; background: var(--ocean); box-shadow: 0 3px 0 var(--ocean-deep); }
+.chart-wrap { height: 350px; padding: 8px 18px 22px; }
+.market-map { padding-bottom: 18px; }
+.range-stack { display: grid; gap: 17px; padding: 14px 24px 20px; }
+.range-row { display: grid; grid-template-columns: 58px 1fr 42px; align-items: center; gap: 10px; }
+.range-row label { color: var(--muted); font-size: 11px; font-weight: 800; }
+.range-row strong { font-size: 12px; text-align: right; }
+.bar { height: 13px; background: #e7eee8; border-radius: 999px; overflow: hidden; border: 2px solid #d7e2db; }
+.bar span { display: block; height: 100%; border-radius: inherit; min-width: 6px; }
+.bar.low span { background: var(--grass); }
+.bar.main span { background: var(--coin); }
+.bar.high span { background: var(--pink); }
+.map-note { margin: 0 24px; padding: 14px; border-radius: 15px; color: #4c6675; background: #eef8f1; font-size: 11px; font-weight: 650; }
+.list-panel { margin-top: 18px; }
+.filter { display: flex; gap: 5px; padding: 4px; background: #eef2ee; border-radius: 13px; }
+.table-scroll { overflow-x: auto; padding: 0 20px 18px; }
+table { width: 100%; border-collapse: separate; border-spacing: 0 7px; min-width: 620px; }
+th { padding: 0 14px 5px; color: #83939e; text-align: left; font-size: 10px; letter-spacing: .1em; }
+td { padding: 11px 14px; background: #f3f7f2; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+td:first-child { border-radius: 13px 0 0 13px; color: #8b9aa4; }
+td:last-child { border-radius: 0 13px 13px 0; }
+tr[data-band="low"] td { background: #e9f7e5; }
+.price { color: var(--leaf); font-size: 15px; font-weight: 950; }
+.tag { display: inline-flex; padding: 3px 8px; border-radius: 999px; font-size: 10px; font-weight: 900; }
+.tag.low { background: #caedc5; color: #287743; }
+.tag.main { background: #ffefb4; color: #9d6508; }
+.tag.high { background: #ffe0e6; color: #a9465a; }
+.disclaimer { display: flex; align-items: flex-start; gap: 12px; margin-top: 18px; padding: 17px 19px; color: #436375; background: rgba(247,252,244,.9); border: 2px solid rgba(255,255,255,.72); border-radius: 18px; font-size: 11px; font-weight: 650; }
+.disclaimer-mark { flex: 0 0 auto; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--ocean); font-size: 13px; font-weight: 950; }
+.footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 14px; color: rgba(255,255,255,.75); font-size: 10px; font-weight: 700; }
+@keyframes arrive { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero, .stats, .panel-grid, .list-panel { animation: arrive .55s both; }
+  .stats { animation-delay: .08s; } .panel-grid { animation-delay: .16s; } .list-panel { animation-delay: .24s; }
+  .leaf { animation: leafFloat 5s ease-in-out infinite alternate; }
+  @keyframes leafFloat { to { transform: translate(10px, 14px) rotate(70deg); } }
 }
-.panel h2 { font-size: 15px; font-weight: 700; margin-bottom: 14px; color: var(--text-1); letter-spacing: .02em; }
-.panel h2::before { content: "◆ "; color: var(--gold-dim); font-size: 12px; }
-.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.panel-head h2 { margin-bottom: 0; }
-.range-switch { display: flex; gap: 4px; background: #0d1422; border-radius: 10px; padding: 3px; border: 1px solid #223049; }
-.range-switch button {
-  border: none; background: transparent; padding: 6px 15px; border-radius: 7px;
-  font-size: 12px; font-weight: 600; color: var(--text-3); cursor: pointer;
-  transition: background .15s ease, color .15s ease, box-shadow .15s ease;
-}
-.range-switch button:hover { color: var(--text-1); }
-.range-switch button.active { background: var(--gold); color: #17120a; box-shadow: 0 2px 8px rgba(245,197,66,.4); }
-.chart-box { position: relative; height: 320px; }
-.chart-box canvas { filter: drop-shadow(0 4px 12px rgba(0,0,0,.25)); }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid #1f2a3f; }
-th { color: var(--text-3); font-weight: 600; font-size: 12px; letter-spacing: .05em; }
-td.price { font-weight: 700; font-variant-numeric: tabular-nums; }
-td.price .gold { color: var(--gold); }
-tbody tr { transition: background .15s ease; }
-tbody tr:hover { background: #1a2337; }
-.foot { font-size: 12px; color: var(--text-3); line-height: 1.7; margin-top: 4px; }
-.note {
-  background: linear-gradient(160deg, rgba(245,197,66,.07), rgba(245,197,66,.02));
-  border: 1px solid rgba(245,197,66,.22); border-radius: 10px;
-  padding: 12px 14px; font-size: 12px; color: var(--text-2); margin-top: 16px; line-height: 1.7;
+@media (max-width: 880px) {
+  .hero { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .panel-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
-  h1 { font-size: 18px; }
-  .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  body { padding: 20px 12px; }
+  .world { padding: 18px 11px 54px; }
+  .topbar { align-items: flex-start; }
+  .brand-mark { width: 44px; height: 44px; }
+  .brand-copy strong { font-size: 17px; }
+  .status-bar { max-width: 145px; line-height: 1.35; border-radius: 14px; }
+  .hero-main, .hero-side { padding: 25px 22px; }
+  .hero { border-radius: 23px; }
+  .stats { gap: 10px; }
+  .stat { min-height: 116px; padding: 15px; border-radius: 18px; }
+  .panel { border-radius: 21px; }
+  .panel-head { padding: 18px 16px 10px; }
+  .chart-wrap { height: 305px; padding-inline: 8px; }
+  .range-stack { padding-inline: 16px; }
+  .footer { flex-direction: column; }
 }
 </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="header">
-    <h1><span class="mascot">◆</span>漂漂猪 <small>冒险岛怀旧服 · 金价看板</small></h1>
-    <div class="meta">数据源：DD373 挂牌价 ｜ <b>每小时自动更新</b></div>
-  </div>
+<body lang="zh">
+<main class="world" data-screen-label="漂漂猪港口交易所">
+  <span class="leaf a"></span><span class="leaf b"></span><span class="leaf c"></span>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">PP</div><div class="brand-copy"><strong>漂漂猪港口交易所</strong><span>怀旧服 · 国服 · 游戏币行情</span></div></div>
+      <div class="status-bar"><span class="status-dot"></span>每小时第 17 分自动巡价</div>
+    </header>
 
-  <div class="cards">
-    <div class="card">
-      <div class="label">最低挂牌</div>
-      <div class="value v-up">4.40<span class="unit">元/万金</span></div>
-      <div class="sub">全服在售最低</div>
-    </div>
-    <div class="card">
-      <div class="label">主流区间</div>
-      <div class="value v-gold">5.95 ~ 9.00<span class="unit">元/万金</span></div>
-      <div class="sub">中段50%挂牌价范围</div>
-    </div>
-    <div class="card">
-      <div class="label">加权均价</div>
-      <div class="value v-down">9.40<span class="unit">元/万金</span></div>
-      <div class="sub">按可买量加权</div>
-    </div>
-  </div>
-
-  <div class="cards">
-    <div class="card">
-      <div class="label">在售单数</div>
-      <div class="value">20<span class="unit">单</span></div>
-      <div class="sub">最后抓取：2026-08-04 14:54:14</div>
-    </div>
-    <div class="card">
-      <div class="label">总可买量</div>
-      <div class="value v-gold">366<span class="unit">万金</span></div>
-      <div class="sub">全部在售可买量合计</div>
-    </div>
-    <div class="card">
-      <div class="label">点天灯</div>
-      <div class="value v-gold">¥3,439</div>
-      <div class="sub">按挂牌价买光全部在售</div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <div class="panel-head">
-      <h2>金价走势</h2>
-      <div class="range-switch" id="rangeSwitch">
-        <button data-range="24h" class="active">24h</button>
-        <button data-range="7d">7d</button>
-        <button data-range="30d">30d</button>
+    <section class="hero">
+      <div class="hero-main">
+        <div class="eyebrow">今日港口最低挂牌</div>
+        <h1>现在一万金，要花多少钱？</h1>
+        <div class="price-line"><span class="big-price">4.3800</span><span class="unit">元 / 万金</span><span class="movement ">较上次 -0.02</span></div>
       </div>
-    </div>
-    <div class="chart-box"><canvas id="trend"></canvas></div>
-  </div>
+      <aside class="hero-side">
+        <div class="quest-label">MARKET QUEST / 市场任务板</div>
+        <h2>漂漂猪行情快照</h2>
+        <div class="market-lines">
+          <div class="market-line"><span>主流成交带</span><strong>5.00 – 9.00 元</strong></div>
+          <div class="market-line"><span>抓取时间</span><strong>2026-08-04 15:10:30</strong></div>
+          <div class="market-line"><span>数据来源</span><strong>DD373 挂牌</strong></div>
+        </div>
+        <div class="coverage">全量抓取完成 · 2 页 / 21 单</div>
+      </aside>
+    </section>
 
-  <div class="panel">
-    <div class="panel-head">
-      <h2>可买量走势</h2>
-      <div class="range-switch" id="rangeSwitchQty">
-        <button data-range="24h" class="active">24h</button>
-        <button data-range="7d">7d</button>
-        <button data-range="30d">30d</button>
-      </div>
-    </div>
-    <div class="chart-box"><canvas id="qtyTrend"></canvas></div>
-  </div>
+    <section class="stats">
+      <article class="stat"><div class="stat-label">挂牌加权均价</div><div class="stat-value blue">9.78</div><div class="stat-sub">元 / 万金 · 按最大可买量加权</div></article>
+      <article class="stat"><div class="stat-label">全量在售单数</div><div class="stat-value">21 单</div><div class="stat-sub">自动遍历全部分页</div></article>
+      <article class="stat"><div class="stat-label">港口总货量</div><div class="stat-value gold">345 万</div><div class="stat-sub">当前挂牌最大可买量合计</div></article>
+      <article class="stat"><div class="stat-label">一键扫货预算</div><div class="stat-value gold">¥3,374</div><div class="stat-sub">按挂牌价买光全部在售</div></article>
+    </section>
 
-  <div class="panel">
-    <h2>当前在售明细（20 单）</h2>
-    <table>
-      <thead><tr><th>单价（元/万金）</th><th>可买量（万）</th></tr></thead>
-      <tbody><tr><td class="price"><span class="gold">4.40</span></td><td>30</td></tr><tr><td class="price"><span class="gold">4.40</span></td><td>3</td></tr><tr><td class="price"><span class="gold">4.50</span></td><td>3</td></tr><tr><td class="price"><span class="gold">4.50</span></td><td>5</td></tr><tr><td class="price"><span class="gold">5.00</span></td><td>1</td></tr><tr><td class="price"><span class="gold">5.95</span></td><td>7</td></tr><tr><td class="price"><span class="gold">6.50</span></td><td>10</td></tr><tr><td class="price"><span class="gold">6.67</span></td><td>10</td></tr><tr><td class="price"><span class="gold">6.67</span></td><td>10</td></tr><tr><td class="price"><span class="gold">6.67</span></td><td>2</td></tr><tr><td class="price"><span class="gold">8.00</span></td><td>12</td></tr><tr><td class="price"><span class="gold">8.00</span></td><td>2</td></tr><tr><td class="price"><span class="gold">8.00</span></td><td>1</td></tr><tr><td class="price"><span class="gold">8.33</span></td><td>5</td></tr><tr><td class="price"><span class="gold">8.90</span></td><td>40</td></tr><tr><td class="price"><span class="gold">9.00</span></td><td>8</td></tr><tr><td class="price"><span class="gold">9.90</span></td><td>100</td></tr><tr><td class="price"><span class="gold">10.00</span></td><td>12</td></tr><tr><td class="price"><span class="gold">10.00</span></td><td>5</td></tr><tr><td class="price"><span class="gold">12.50</span></td><td>100</td></tr></tbody>
-    </table>
-  </div>
+    <section class="panel-grid">
+      <article class="panel">
+        <div class="panel-head"><div><div class="panel-title"><i></i><h2>金价航线</h2></div><div class="panel-kicker">最低挂牌与加权均价的时间走势</div></div><div class="switch" id="rangeSwitch"><button class="active" data-range="24h">24 小时</button><button data-range="7d">7 天</button><button data-range="30d">30 天</button></div></div>
+        <div class="chart-wrap"><canvas id="trend"></canvas></div>
+      </article>
+      <aside class="panel market-map">
+        <div class="panel-head"><div><div class="panel-title"><i></i><h2>摊位分布</h2></div><div class="panel-kicker">按主流价格带切分当前挂牌</div></div></div>
+        <div class="range-stack"><div class="range-row"><label>低价区</label><div class="bar low"><span style="width:23.8%"></span></div><strong>5 单</strong></div><div class="range-row"><label>主流区</label><div class="bar main"><span style="width:52.4%"></span></div><strong>11 单</strong></div><div class="range-row"><label>高价区</label><div class="bar high"><span style="width:23.8%"></span></div><strong>5 单</strong></div></div>
+        <p class="map-note">主流区间取挂牌价中段 50%。低价单更便宜，但库存和卖家条件仍需进入平台逐单确认。</p>
+      </aside>
+    </section>
 
-  <div class="note">
-    说明：数据抓自 DD373「冒险岛怀旧服 → 国服 → 漂漂猪」区的卖家挂牌价，单位元/万金（不含平台手续费）。开服初期金价波动大，仅供参考。页面由自动任务每小时刷新，刷新时间见卡片「最后抓取」。
-  </div>
-  <div class="foot">分享说明：本页面为静态文件，可直接转发给朋友打开；数据为抓取时刻快照。</div>
-</div>
+    <section class="panel list-panel">
+      <div class="panel-head"><div><div class="panel-title"><i></i><h2>港口摊位清单</h2></div><div class="panel-kicker">当前 21 单 · 已按单价从低到高排序</div></div><div class="filter" id="tableFilter"><button class="active" data-filter="all">全部</button><button data-filter="low">低价</button><button data-filter="main">主流</button><button data-filter="high">高价</button></div></div>
+      <div class="table-scroll"><table><thead><tr><th>序号</th><th>单价（元/万）</th><th>可买量</th><th>扫货金额</th><th>价格带</th></tr></thead><tbody id="listingRows"><tr data-band="low"><td>#01</td><td class="price">4.3800</td><td>7 万</td><td>¥30.66</td><td><span class="tag low">低价区</span></td></tr><tr data-band="low"><td>#02</td><td class="price">4.4000</td><td>5 万</td><td>¥22.00</td><td><span class="tag low">低价区</span></td></tr><tr data-band="low"><td>#03</td><td class="price">4.4000</td><td>3 万</td><td>¥13.20</td><td><span class="tag low">低价区</span></td></tr><tr data-band="low"><td>#04</td><td class="price">4.5000</td><td>3 万</td><td>¥13.50</td><td><span class="tag low">低价区</span></td></tr><tr data-band="low"><td>#05</td><td class="price">4.5455</td><td>7 万</td><td>¥31.82</td><td><span class="tag low">低价区</span></td></tr><tr data-band="main"><td>#06</td><td class="price">5.0000</td><td>1 万</td><td>¥5.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#07</td><td class="price">5.9500</td><td>7 万</td><td>¥41.65</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#08</td><td class="price">6.5000</td><td>10 万</td><td>¥65.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#09</td><td class="price">6.6667</td><td>10 万</td><td>¥66.67</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#10</td><td class="price">6.6667</td><td>2 万</td><td>¥13.33</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#11</td><td class="price">8.0000</td><td>12 万</td><td>¥96.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#12</td><td class="price">8.0000</td><td>2 万</td><td>¥16.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#13</td><td class="price">8.0000</td><td>1 万</td><td>¥8.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#14</td><td class="price">8.3333</td><td>5 万</td><td>¥41.67</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#15</td><td class="price">8.9000</td><td>40 万</td><td>¥356.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="main"><td>#16</td><td class="price">9.0000</td><td>8 万</td><td>¥72.00</td><td><span class="tag main">主流区</span></td></tr><tr data-band="high"><td>#17</td><td class="price">9.9010</td><td>100 万</td><td>¥990.10</td><td><span class="tag high">高价区</span></td></tr><tr data-band="high"><td>#18</td><td class="price">10.0000</td><td>12 万</td><td>¥120.00</td><td><span class="tag high">高价区</span></td></tr><tr data-band="high"><td>#19</td><td class="price">10.0000</td><td>5 万</td><td>¥50.00</td><td><span class="tag high">高价区</span></td></tr><tr data-band="high"><td>#20</td><td class="price">12.5000</td><td>100 万</td><td>¥1,250.00</td><td><span class="tag high">高价区</span></td></tr><tr data-band="high"><td>#21</td><td class="price">14.2857</td><td>5 万</td><td>¥71.43</td><td><span class="tag high">高价区</span></td></tr></tbody></table></div>
+    </section>
 
+    <div class="disclaimer"><span class="disclaimer-mark">i</span><span>数据抓自 DD373「冒险岛怀旧服 → 国服 → 漂漂猪 → 游戏币」卖家挂牌，不含平台手续费，也不代表真实成交价。开服初期波动较大，请把本页当作市场雷达，不要当作交易承诺。</span></div>
+    <footer class="footer"><span>静态看板 · 数据由本地任务每小时刷新并发布</span><span>最近快照：2026-08-04 15:10:30</span></footer>
+  </div>
+</main>
 <script>
-const SERIES = [{"time": "2026-08-04 10:40:06", "lowest": 5.0, "weighted_avg": 8.1887, "main_low": 5.94, "main_high": 8.3333, "n": 20, "total_qty": 242, "total_amount": 1981.66}, {"time": "2026-08-04 11:43:48", "lowest": 4.6, "weighted_avg": 7.655, "main_low": 5.0, "main_high": 8.0, "n": 20, "total_qty": 252, "total_amount": 1929.07}, {"time": "2026-08-04 13:35:28", "lowest": 4.5, "weighted_avg": 8.0817, "main_low": 5.0, "main_high": 8.3333, "n": 20, "total_qty": 281, "total_amount": 2270.97}, {"time": "2026-08-04 14:54:14", "lowest": 4.3975, "weighted_avg": 9.3968, "main_low": 5.95, "main_high": 9.0, "n": 20, "total_qty": 366, "total_amount": 3439.21}];
 (function () {
-  if (typeof Chart === "undefined") {
-    document.querySelectorAll(".chart-box").forEach(box => {
-      box.innerHTML = '<div style="padding:40px;text-align:center;color:#5c6b84">图表库加载失败，请联网后刷新页面</div>';
-    });
-    return;
-  }
-  const RANGES = { "24h": 24 * 3600e3, "7d": 7 * 24 * 3600e3, "30d": 30 * 24 * 3600e3 };
+  const SERIES = [{"time": "2026-08-04 10:40:06", "lowest": 5.0, "weighted_avg": 8.1887, "main_low": 5.94, "main_high": 8.3333, "n": 20, "total_qty": 242}, {"time": "2026-08-04 11:43:48", "lowest": 4.6, "weighted_avg": 7.655, "main_low": 5.0, "main_high": 8.0, "n": 20, "total_qty": 252}, {"time": "2026-08-04 13:35:28", "lowest": 4.5, "weighted_avg": 8.0817, "main_low": 5.0, "main_high": 8.3333, "n": 20, "total_qty": 281}, {"time": "2026-08-04 14:54:14", "lowest": 4.3975, "weighted_avg": 9.3968, "main_low": 5.95, "main_high": 9.0, "n": 20, "total_qty": 366}, {"time": "2026-08-04 15:10:30", "lowest": 4.38, "weighted_avg": 9.7798, "main_low": 5.0, "main_high": 9.0, "n": 21, "total_qty": 345}];
+  const RANGES = {"24h": 24 * 3600e3, "7d": 7 * 24 * 3600e3, "30d": 30 * 24 * 3600e3};
+  let priceChart = null;
+
   function sliceByRange(range) {
     const cutoff = Date.now() - RANGES[range];
-    return SERIES.filter(r => {
+    const filtered = SERIES.filter((r) => {
       const ts = new Date(r.time.replace(" ", "T")).getTime();
-      return !isNaN(ts) && ts >= cutoff;
+      return Number.isFinite(ts) && ts >= cutoff;
+    });
+    return filtered.length ? filtered : SERIES;
+  }
+
+  if (typeof Chart === "undefined") {
+    document.querySelector(".chart-wrap").innerHTML = '<div class="map-note">图表组件暂未加载，挂牌明细仍可正常查看。</div>';
+  } else {
+    priceChart = new Chart(document.getElementById("trend"), {
+      type: "line",
+      data: {labels: [], datasets: [
+        {label: "最低挂牌", data: [], borderColor: "#ec6a3b", backgroundColor: "rgba(236,106,59,.13)", borderWidth: 3, pointRadius: 4, pointBackgroundColor: "#fff9df", pointBorderColor: "#ec6a3b", pointBorderWidth: 3, tension: .28, fill: true},
+        {label: "加权均价", data: [], borderColor: "#166c9f", borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#166c9f", tension: .28, fill: false}
+      ]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: {mode: "index", intersect: false},
+        scales: {
+          y: {ticks: {color: "#6c8092", callback: (v) => Number(v).toFixed(2)}, grid: {color: "#dfe8e2"}, border: {display: false}},
+          x: {ticks: {color: "#6c8092", maxTicksLimit: 8}, grid: {display: false}, border: {display: false}}
+        },
+        plugins: {
+          legend: {position: "bottom", labels: {color: "#456173", usePointStyle: true, padding: 18, font: {weight: 700}}},
+          tooltip: {backgroundColor: "#17324d", padding: 12, cornerRadius: 10, callbacks: {label: (ctx) => ctx.dataset.label + "：" + ctx.parsed.y.toFixed(2) + " 元/万金"}}
+        }
+      }
     });
   }
 
-  const priceChart = new Chart(document.getElementById("trend"), {
-    type: "line",
-    data: { labels: [], datasets: [
-      { label: "最低挂牌", data: [], borderColor: "#34d399", backgroundColor: "#34d39922", borderWidth: 2, pointRadius: 3, pointBackgroundColor: "#34d399", tension: 0.25, fill: false },
-      { label: "加权均价", data: [], borderColor: "#f5c542", backgroundColor: "#f5c54222", borderWidth: 2.5, pointRadius: 3, pointBackgroundColor: "#f5c542", tension: 0.25, fill: false },
-      { label: "主流下限", data: [], borderColor: "#60a5fa", backgroundColor: "#60a5fa22", borderWidth: 1.5, pointRadius: 2, tension: 0.25, fill: false },
-      { label: "主流上限", data: [], borderColor: "#fb923c", backgroundColor: "#fb923c22", borderWidth: 1.5, pointRadius: 2, tension: 0.25, fill: false },
-    ] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      scales: {
-        y: { title: { display: true, text: "元 / 万金", color: "#9aa7bd" }, ticks: { color: "#5c6b84", callback: v => v.toFixed(2) }, grid: { color: "#1f2a3f" } },
-        x: { ticks: { color: "#5c6b84", maxTicksLimit: 12 }, grid: { color: "#1f2a3f" } }
-      },
-      plugins: {
-        legend: { position: "bottom", labels: { color: "#9aa7bd", usePointStyle: true, pointStyle: "line", padding: 16 } },
-        tooltip: { backgroundColor: "#0d1422", titleColor: "#f2f4f8", bodyColor: "#9aa7bd", borderColor: "#24304a", borderWidth: 1, callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.parsed.y.toFixed(2) + " 元/万金" } }
-      }
-    }
-  });
-  const qtyChart = new Chart(document.getElementById("qtyTrend"), {
-    type: "bar",
-    data: { labels: [], datasets: [
-      { label: "总可买量", data: [], backgroundColor: "rgba(245,197,66,.75)", hoverBackgroundColor: "#f5c542", borderRadius: 4, maxBarThickness: 32 },
-    ] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      scales: {
-        y: { title: { display: true, text: "万金", color: "#9aa7bd" }, ticks: { color: "#5c6b84", callback: v => v.toFixed(0) }, grid: { color: "#1f2a3f" } },
-        x: { ticks: { color: "#5c6b84", maxTicksLimit: 12 }, grid: { color: "#1f2a3f" } }
-      },
-      plugins: {
-        legend: { position: "bottom", labels: { color: "#9aa7bd", usePointStyle: true, padding: 16 } },
-        tooltip: { backgroundColor: "#0d1422", titleColor: "#f2f4f8", bodyColor: "#9aa7bd", borderColor: "#24304a", borderWidth: 1, callbacks: { label: ctx => ctx.dataset.label + ": " + ctx.parsed.y.toFixed(0) + " 万金" } }
-      }
-    }
-  });
-
-  function render(range) {
+  function renderRange(range) {
+    if (!priceChart) return;
     const rows = sliceByRange(range);
-    const labels = rows.map(r => r.time.slice(5));
-    const keys = ["lowest", "weighted_avg", "main_low", "main_high"];
-    priceChart.data.labels = labels;
-    keys.forEach((k, i) => { priceChart.data.datasets[i].data = rows.map(r => r[k]); });
-    qtyChart.data.labels = labels;
-    qtyChart.data.datasets[0].data = rows.map(r => r.total_qty || 0);
+    priceChart.data.labels = rows.map((r) => r.time.slice(5, 16));
+    priceChart.data.datasets[0].data = rows.map((r) => r.lowest);
+    priceChart.data.datasets[1].data = rows.map((r) => r.weighted_avg);
     priceChart.update();
-    qtyChart.update();
   }
-  function bindSwitch(swId) {
-    document.getElementById(swId).addEventListener("click", e => {
-      const btn = e.target.closest("button");
-      if (!btn) return;
-      document.querySelectorAll("#" + swId + " button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      render(btn.dataset.range);
+
+  document.getElementById("rangeSwitch").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-range]");
+    if (!button) return;
+    document.querySelectorAll("#rangeSwitch button").forEach((node) => node.classList.toggle("active", node === button));
+    renderRange(button.dataset.range);
+  });
+
+  document.getElementById("tableFilter").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-filter]");
+    if (!button) return;
+    document.querySelectorAll("#tableFilter button").forEach((node) => node.classList.toggle("active", node === button));
+    document.querySelectorAll("#listingRows tr").forEach((row) => {
+      row.hidden = button.dataset.filter !== "all" && row.dataset.band !== button.dataset.filter;
     });
-  }
-  bindSwitch("rangeSwitch");
-  bindSwitch("rangeSwitchQty");
-  render("24h");
+  });
+
+  renderRange("24h");
 })();
 </script>
 </body>
