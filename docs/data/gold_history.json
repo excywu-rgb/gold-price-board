@@ -112,12 +112,12 @@
    ]
   },
   {
-   "time": "2026-08-04 11:02:06",
+   "time": "2026-08-04 11:33:05",
    "lowest": 4.8,
    "main_low": 5.9382,
    "main_high": 8.0,
    "main_count": 11,
-   "weighted_avg": 8.0152,
+   "weighted_avg": 7.8861,
    "n_listings": 20,
    "items": [
     {
@@ -137,13 +137,13 @@
     },
     {
      "price_per_wan": 5.0,
-     "qty_min": 1,
-     "qty_max": 1
+     "qty_min": 20,
+     "qty_max": 20
     },
     {
-     "price_per_wan": 5.8997,
-     "qty_min": 13,
-     "qty_max": 13
+     "price_per_wan": 5.0,
+     "qty_min": 1,
+     "qty_max": 1
     },
     {
      "price_per_wan": 5.9382,
