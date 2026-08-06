@@ -51,7 +51,12 @@ async function dispatchWorkflow(env, triggeredBy) {
 
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(dispatchWorkflow(env, `cloudflare-cron:${controller.cron}`));
+    ctx.waitUntil(
+      dispatchWorkflow(env, `cloudflare-cron:${controller.cron}`).catch((error) => {
+        console.error(error.message);
+        throw error;
+      }),
+    );
   },
 
   async fetch(request, env) {
@@ -68,8 +73,13 @@ export default {
       if (!env.TRIGGER_KEY || authorization !== `Bearer ${env.TRIGGER_KEY}`) {
         return new Response("Unauthorized", { status: 401 });
       }
-      const result = await dispatchWorkflow(env, "cloudflare-manual-verification");
-      return Response.json(result);
+      try {
+        const result = await dispatchWorkflow(env, "cloudflare-manual-verification");
+        return Response.json(result);
+      } catch (error) {
+        console.error(error.message);
+        return Response.json({ ok: false, error: error.message }, { status: 502 });
+      }
     }
     return new Response("Not found", { status: 404 });
   },

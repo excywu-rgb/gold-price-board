@@ -16,10 +16,6 @@ concurrency:
   group: gold-price-production-refresh
   cancel-in-progress: false
 
-concurrency:
-  group: refresh
-  cancel-in-progress: false
-
 jobs:
   refresh:
     runs-on: ubuntu-latest
