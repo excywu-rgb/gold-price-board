@@ -5,7 +5,7 @@
 抓取 DD373 上"冒险岛怀旧服 → 国服 → 漂漂猪"区的游戏币挂牌价。
 用法: python3 fetch_gold.py [--out /path/to/data.json]
 """
-import re, json, sys, gzip
+import re, json, sys, gzip, os, tempfile
 import urllib.request
 from urllib.parse import urljoin
 from datetime import datetime, timezone, timedelta
@@ -148,11 +148,54 @@ def now_cst():
     return datetime.now(tz)
 
 def load(path):
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
+    """严格读取历史；只有文件确实不存在时才允许创建空历史。"""
+    if not os.path.exists(path):
         return {"history": []}
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict) or not isinstance(data.get("history"), list):
+        raise ValueError("历史数据结构无效，拒绝覆盖正式文件")
+    for index, record in enumerate(data["history"]):
+        if not isinstance(record, dict) or not isinstance(record.get("time"), str):
+            raise ValueError(f"历史记录 #{index} 缺少有效 time，拒绝覆盖正式文件")
+    return data
+
+
+def save_history_atomic(path, old_history, new_record):
+    """保留全部既有小时记录，以原子替换方式写入本小时快照。"""
+    hour = new_record["time"][:13]
+    retained = [record for record in old_history if not record["time"].startswith(hour)]
+    new_history = retained + [new_record]
+    new_history.sort(key=lambda record: record["time"])
+
+    expected_count = len(retained) + 1
+    if len(new_history) != expected_count:
+        raise RuntimeError("历史条数校验失败，拒绝写入")
+    for record in retained:
+        if record not in new_history:
+            raise RuntimeError("既有历史记录发生丢失，拒绝写入")
+    times = [record["time"] for record in new_history]
+    if len(times) != len(set(times)):
+        raise RuntimeError("历史时间戳重复，拒绝写入")
+
+    directory = os.path.dirname(os.path.abspath(path))
+    os.makedirs(directory, exist_ok=True)
+    fd, temp_path = tempfile.mkstemp(prefix="gold-history-", suffix=".json", dir=directory)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump({"history": new_history}, f, ensure_ascii=False, indent=1)
+            f.write("\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.chmod(temp_path, 0o644)
+        os.replace(temp_path, path)
+    except Exception:
+        try:
+            os.unlink(temp_path)
+        except FileNotFoundError:
+            pass
+        raise
+    return len(new_history)
 
 def main():
     out = None
@@ -178,14 +221,8 @@ def main():
     print(json.dumps(record, ensure_ascii=False, indent=1))
     if out:
         data = load(out)
-        # 去重: 同一小时内重复抓取则覆盖
-        hour = ts.strftime("%Y-%m-%d %H")
-        data["history"] = [r for r in data.get("history", []) if not r["time"].startswith(hour)]
-        data["history"].append(record)
-        data["history"].sort(key=lambda r: r["time"])
-        with open(out, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=1)
-        print(f"[saved] {out} (history={len(data['history'])})", file=sys.stderr)
+        count = save_history_atomic(out, data["history"], record)
+        print(f"[saved] {out} (history={count})", file=sys.stderr)
 
 if __name__ == "__main__":
     main()

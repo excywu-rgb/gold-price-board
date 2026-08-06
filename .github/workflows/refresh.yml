@@ -1,12 +1,20 @@
 name: 金价数据每小时刷新
 
 on:
-  # 每小时刷新由本机 launchd 负责；这里只保留故障恢复用的手动触发，
-  # 避免 Actions 与本机在同一分钟写同一份历史数据。
+  # 由 Cloudflare Cron 通过 API 触发；不使用 GitHub 原生 schedule。
   workflow_dispatch:
+    inputs:
+      triggered_by:
+        description: "触发来源"
+        required: false
+        default: "manual"
 
 permissions:
   contents: write
+
+concurrency:
+  group: gold-price-production-refresh
+  cancel-in-progress: false
 
 concurrency:
   group: refresh
@@ -17,6 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 快进到远端最新正式数据
+        run: git pull --ff-only origin main
 
       - name: 抓取 DD373 金价
         run: python3 scripts/fetch_gold.py --out docs/data/gold_history.json
