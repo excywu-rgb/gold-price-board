@@ -1,4 +1,5 @@
 name: 金价数据每小时刷新
+run-name: 金价刷新 · ${{ inputs.triggered_by || 'manual' }}
 
 on:
   # 由 Cloudflare Cron 通过 API 触发；不使用 GitHub 原生 schedule。
