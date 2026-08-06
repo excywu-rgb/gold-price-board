@@ -118,6 +118,15 @@ button { font: inherit; }
 .switch button:hover, .filter button:hover { color: var(--ink); }
 .switch button.active, .filter button.active { color: #fff; background: var(--ocean); box-shadow: 0 3px 0 var(--ocean-deep); }
 .chart-wrap { height: 350px; padding: 8px 18px 22px; }
+.volume-panel { margin-top: 18px; position: relative; }
+.volume-panel .panel-title i { background: var(--coin); box-shadow: 3px 3px 0 #db8a17; }
+.volume-meta { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 24px 9px; }
+.tide-chip { display: inline-flex; align-items: baseline; gap: 6px; min-height: 31px; padding: 5px 10px; border: 2px solid #e1e9df; border-radius: 11px; color: #617784; background: #f3f8ef; font-size: 10px; font-weight: 750; }
+.tide-chip strong { color: var(--ink); font-size: 12px; font-variant-numeric: tabular-nums; }
+.tide-chip.surge { border-color: #ffd2b9; color: #a44e2d; background: #fff0e7; }
+.tide-chip.surge strong { color: #b54a27; }
+.tide-chip.partial { border-style: dashed; border-color: #c7d1d5; color: #647883; background: #eef2f2; }
+.volume-chart-wrap { height: 345px; padding-top: 4px; }
 .market-map { padding-bottom: 18px; }
 .range-stack { display: grid; gap: 17px; padding: 14px 24px 20px; }
 .range-row { display: grid; grid-template-columns: 58px 1fr 42px; align-items: center; gap: 10px; }
@@ -148,8 +157,8 @@ tr[data-band="low"] td { background: #e9f7e5; }
 .footer { display: flex; justify-content: space-between; gap: 16px; margin-top: 14px; color: rgba(255,255,255,.75); font-size: 10px; font-weight: 700; }
 @keyframes arrive { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: no-preference) {
-  .hero, .stats, .panel-grid, .list-panel { animation: arrive .55s both; }
-  .stats { animation-delay: .08s; } .panel-grid { animation-delay: .16s; } .list-panel { animation-delay: .24s; }
+  .hero, .stats, .panel-grid, .volume-panel, .list-panel { animation: arrive .55s both; }
+  .stats { animation-delay: .08s; } .panel-grid { animation-delay: .16s; } .volume-panel { animation-delay: .22s; } .list-panel { animation-delay: .28s; }
   .leaf { animation: leafFloat 5s ease-in-out infinite alternate; }
   @keyframes leafFloat { to { transform: translate(10px, 14px) rotate(70deg); } }
 }
@@ -171,6 +180,8 @@ tr[data-band="low"] td { background: #e9f7e5; }
   .panel { border-radius: 21px; }
   .panel-head { padding: 18px 16px 10px; }
   .chart-wrap { height: 305px; padding-inline: 8px; }
+  .volume-meta { padding-inline: 16px; }
+  .volume-chart-wrap { height: 330px; }
   .range-stack { padding-inline: 16px; }
   .footer { flex-direction: column; }
 }
@@ -182,6 +193,16 @@ SCRIPT = r"""
   const SERIES = __SERIES__;
   const RANGES = {"24h": 24 * 3600e3, "7d": 7 * 24 * 3600e3, "30d": 30 * 24 * 3600e3};
   let priceChart = null;
+  let volumeChart = null;
+  let visibleVolumeRows = [];
+
+  const wholeNumber = new Intl.NumberFormat("zh-CN", {maximumFractionDigits: 0});
+
+  function compactVolume(value) {
+    const number = Number(value);
+    if (number >= 10000) return (number / 10000).toFixed(number >= 100000 ? 0 : 1) + " 亿";
+    return wholeNumber.format(number) + " 万";
+  }
 
   function sliceByRange(range) {
     const cutoff = Date.now() - RANGES[range];
@@ -193,7 +214,9 @@ SCRIPT = r"""
   }
 
   if (typeof Chart === "undefined") {
-    document.querySelector(".chart-wrap").innerHTML = '<div class="map-note">图表组件暂未加载，挂牌明细仍可正常查看。</div>';
+    document.querySelectorAll(".chart-wrap").forEach((node) => {
+      node.innerHTML = '<div class="map-note">图表组件暂未加载，挂牌明细仍可正常查看。</div>';
+    });
   } else {
     priceChart = new Chart(document.getElementById("trend"), {
       type: "line",
@@ -214,6 +237,44 @@ SCRIPT = r"""
         }
       }
     });
+
+    volumeChart = new Chart(document.getElementById("volumeTrend"), {
+      type: "line",
+      data: {labels: [], datasets: [
+        {label: "港口总货量", data: [], yAxisID: "yVolume", borderColor: "#db8a17", backgroundColor: "rgba(255,200,61,.20)", borderWidth: 3, pointRadius: [], pointHoverRadius: 7, pointBackgroundColor: [], pointBorderColor: "#fff9df", pointBorderWidth: 2, tension: .22, fill: true, spanGaps: false},
+        {label: "早期非全量样本", data: [], yAxisID: "yVolume", borderColor: "#9aa9af", backgroundColor: "rgba(154,169,175,.08)", borderWidth: 2, borderDash: [6, 5], pointRadius: 3, pointBackgroundColor: "#f3f7f5", pointBorderColor: "#7f9199", pointBorderWidth: 2, tension: .18, fill: false, spanGaps: false},
+        {label: "挂牌单数", data: [], yAxisID: "yListings", borderColor: "#166c9f", backgroundColor: "#166c9f", borderWidth: 2, pointRadius: 2.5, pointHoverRadius: 5, tension: .24, fill: false}
+      ]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: {mode: "index", intersect: false},
+        scales: {
+          yVolume: {position: "left", beginAtZero: true, ticks: {color: "#8b6c2d", callback: compactVolume}, grid: {color: "#e9e7d8"}, border: {display: false}, title: {display: true, text: "总货量", color: "#8b6c2d", font: {weight: 800}}},
+          yListings: {position: "right", beginAtZero: true, ticks: {color: "#46748e", callback: (v) => Number(v) + " 单"}, grid: {drawOnChartArea: false}, border: {display: false}, title: {display: true, text: "挂牌单数", color: "#46748e", font: {weight: 800}}},
+          x: {ticks: {color: "#6c8092", maxTicksLimit: 8}, grid: {display: false}, border: {display: false}}
+        },
+        plugins: {
+          legend: {position: "bottom", labels: {color: "#456173", usePointStyle: true, padding: 18, font: {weight: 700}}},
+          tooltip: {
+            backgroundColor: "#17324d", padding: 12, cornerRadius: 10,
+            callbacks: {
+              label: (ctx) => ctx.dataset.yAxisID === "yListings" ? ctx.dataset.label + "：" + wholeNumber.format(ctx.parsed.y) + " 单" : ctx.dataset.label + "：" + compactVolume(ctx.parsed.y),
+              afterBody: (items) => {
+                const row = visibleVolumeRows[items[0]?.dataIndex];
+                if (!row) return [];
+                const notes = [];
+                if (!row.coverage_complete) notes.push("样本状态：早期仅首页抓取，非全量");
+                if (row.max_order_qty) {
+                  const share = row.total_qty ? row.max_order_qty / row.total_qty * 100 : 0;
+                  notes.push("最大单：" + compactVolume(row.max_order_qty) + "（占总货量 " + share.toFixed(1) + "%）");
+                }
+                return notes;
+              }
+            }
+          }
+        }
+      }
+    });
   }
 
   function renderRange(range) {
@@ -225,11 +286,31 @@ SCRIPT = r"""
     priceChart.update();
   }
 
+  function renderVolumeRange(range) {
+    if (!volumeChart) return;
+    const rows = sliceByRange(range);
+    visibleVolumeRows = rows;
+    volumeChart.data.labels = rows.map((r) => r.time.slice(5, 16));
+    volumeChart.data.datasets[0].data = rows.map((r) => r.coverage_complete ? r.total_qty : null);
+    volumeChart.data.datasets[0].pointRadius = rows.map((r) => r.is_large_order ? 6 : 3.5);
+    volumeChart.data.datasets[0].pointBackgroundColor = rows.map((r) => r.is_large_order ? "#ec6a3b" : "#ffc83d");
+    volumeChart.data.datasets[1].data = rows.map((r) => r.coverage_complete ? null : r.total_qty);
+    volumeChart.data.datasets[2].data = rows.map((r) => r.n);
+    volumeChart.update();
+  }
+
   document.getElementById("rangeSwitch").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-range]");
     if (!button) return;
     document.querySelectorAll("#rangeSwitch button").forEach((node) => node.classList.toggle("active", node === button));
     renderRange(button.dataset.range);
+  });
+
+  document.getElementById("volumeRangeSwitch").addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-range]");
+    if (!button) return;
+    document.querySelectorAll("#volumeRangeSwitch button").forEach((node) => node.classList.toggle("active", node === button));
+    renderVolumeRange(button.dataset.range);
   });
 
   document.getElementById("tableFilter").addEventListener("click", (event) => {
@@ -242,6 +323,7 @@ SCRIPT = r"""
   });
 
   renderRange("24h");
+  renderVolumeRange("24h");
 })();
 """
 
@@ -292,12 +374,31 @@ def render(data_path, out_path):
         for key, label in (("low", "低价区"), ("main", "主流区"), ("high", "高价区"))
     )
 
-    series = [{
-        "time": row["time"], "lowest": row["lowest"], "weighted_avg": row["weighted_avg"],
-        "main_low": row["main_low"], "main_high": row["main_high"],
-        "n": row["n_listings"], "total_qty": row.get("total_qty", 0),
-    } for row in history]
+    series = []
+    for row in history:
+        total_qty = row.get("total_qty", 0)
+        max_order_qty = max(
+            (item.get("qty_max", 0) for item in row.get("items", [])),
+            default=0,
+        )
+        series.append({
+            "time": row["time"], "lowest": row["lowest"], "weighted_avg": row["weighted_avg"],
+            "main_low": row["main_low"], "main_high": row["main_high"],
+            "n": row["n_listings"], "total_qty": total_qty,
+            "max_order_qty": max_order_qty,
+            "coverage_complete": row.get("coverage_complete") is True,
+            "is_large_order": max_order_qty >= 10000 and max_order_qty >= total_qty * .5,
+        })
     n_listings = current.get("n_listings", 0)
+    total_qty = current.get("total_qty", 0)
+    previous_total_qty = previous.get("total_qty", 0) if previous else 0
+    volume_delta = total_qty - previous_total_qty
+    volume_delta_pct = volume_delta / previous_total_qty * 100 if previous_total_qty else None
+    current_max_order = max(
+        (item.get("qty_max", 0) for item in current.get("items", [])),
+        default=0,
+    )
+    partial_count = sum(row.get("coverage_complete") is not True for row in history)
     source_pages = current.get("source_pages")
     reported_total = current.get("source_reported_total")
     coverage_complete = current.get("coverage_complete")
@@ -364,6 +465,17 @@ def render(data_path, out_path):
       </aside>
     </section>
 
+    <section class="panel volume-panel">
+      <div class="panel-head"><div><div class="panel-title"><i></i><h2>港口货量潮汐</h2></div><div class="panel-kicker">每轮全量挂牌最大可买量与摊位数</div></div><div class="switch" id="volumeRangeSwitch"><button class="active" data-range="24h">24 小时</button><button data-range="7d">7 天</button><button data-range="30d">30 天</button></div></div>
+      <div class="volume-meta">
+        <span class="tide-chip">当前货量<strong>__TOTAL_QTY__ 万</strong></span>
+        <span class="tide-chip __VOLUME_SURGE_CLASS__">较上轮<strong>__VOLUME_CHANGE__</strong></span>
+        <span class="tide-chip">当前最大单<strong>__MAX_ORDER_QTY__ 万</strong></span>
+        <span class="tide-chip partial">灰色虚线为早期 __PARTIAL_COUNT__ 个非全量样本</span>
+      </div>
+      <div class="chart-wrap volume-chart-wrap"><canvas id="volumeTrend"></canvas></div>
+    </section>
+
     <section class="panel list-panel">
       <div class="panel-head"><div><div class="panel-title"><i></i><h2>港口摊位清单</h2></div><div class="panel-kicker">当前 __LISTINGS__ 单 · 已按单价从低到高排序</div></div><div class="filter" id="tableFilter"><button class="active" data-filter="all">全部</button><button data-filter="low">低价</button><button data-filter="main">主流</button><button data-filter="high">高价</button></div></div>
       <div class="table-scroll"><table><thead><tr><th>序号</th><th>单价（元/万）</th><th>可买量</th><th>扫货金额</th><th>价格带</th></tr></thead><tbody id="listingRows">__ROWS__</tbody></table></div>
@@ -377,6 +489,13 @@ def render(data_path, out_path):
 </body>
 </html>'''
 
+    if volume_delta_pct is None:
+        volume_change = "暂无对比"
+    else:
+        sign = "+" if volume_delta >= 0 else "−"
+        volume_change = f'{sign}{abs(volume_delta):,.0f} 万（{sign}{abs(volume_delta_pct):.1f}%）'
+    volume_surge_class = "surge" if volume_delta_pct is not None and abs(volume_delta_pct) >= 100 else ""
+
     replacements = {
         "__STYLE__": STYLE,
         "__SCRIPT__": SCRIPT.replace("__SERIES__", json.dumps(series, ensure_ascii=False)),
@@ -388,8 +507,12 @@ def render(data_path, out_path):
         "__COVERAGE__": html.escape(coverage_text),
         "__WEIGHTED__": fmt(current.get("weighted_avg"), 2),
         "__LISTINGS__": str(n_listings),
-        "__TOTAL_QTY__": f'{current.get("total_qty", 0):,.0f}',
+        "__TOTAL_QTY__": f'{total_qty:,.0f}',
         "__TOTAL_AMOUNT__": f'{current.get("total_amount", 0):,.0f}',
+        "__VOLUME_CHANGE__": volume_change,
+        "__VOLUME_SURGE_CLASS__": volume_surge_class,
+        "__MAX_ORDER_QTY__": f'{current_max_order:,.0f}',
+        "__PARTIAL_COUNT__": str(partial_count),
         "__BARS__": bars,
         "__ROWS__": "".join(table_rows),
     }
