@@ -324,7 +324,7 @@ def render(data_path, out_path):
   <div class="shell">
     <header class="topbar">
       <div class="brand"><div class="brand-mark">PP</div><div class="brand-copy"><strong>漂漂猪港口交易所</strong><span>怀旧服 · 国服 · 游戏币行情</span></div></div>
-      <div class="status-bar"><span class="status-dot"></span>每小时第 17 分自动巡价</div>
+      <div class="status-bar"><span class="status-dot"></span>云端每小时第 23 分自动巡价</div>
     </header>
 
     <section class="hero">
@@ -370,7 +370,7 @@ def render(data_path, out_path):
     </section>
 
     <div class="disclaimer"><span class="disclaimer-mark">i</span><span>数据抓自 DD373「冒险岛怀旧服 → 国服 → 漂漂猪 → 游戏币」卖家挂牌，不含平台手续费，也不代表真实成交价。开服初期波动较大，请把本页当作市场雷达，不要当作交易承诺。</span></div>
-    <footer class="footer"><span>静态看板 · 数据由本地任务每小时刷新并发布</span><span>最近快照：__CURRENT_TIME__</span></footer>
+    <footer class="footer"><span>静态看板 · 云端定时刷新，本机异常兜底</span><span>最近快照：__CURRENT_TIME__</span></footer>
   </div>
 </main>
 <script>__SCRIPT__</script>
