@@ -193287,6 +193287,394 @@
      "shop_number": "DB20260824172952-92627"
     }
    ]
+  },
+  {
+   "time": "2026-08-28 01:23:16",
+   "lowest": 0.251,
+   "main_low": 0.26,
+   "main_high": 0.28,
+   "main_count": 33,
+   "weighted_avg": 0.3043,
+   "total_qty": 176395,
+   "total_amount": 53685.62,
+   "n_listings": 62,
+   "source_pages": 4,
+   "source_reported_total": 62,
+   "coverage_complete": true,
+   "items": [
+    {
+     "price_per_wan": 0.251,
+     "qty_min": 20,
+     "qty_max": 20,
+     "shop_number": "DB20260828005041-26655"
+    },
+    {
+     "price_per_wan": 0.2522,
+     "qty_min": 406,
+     "qty_max": 406,
+     "shop_number": "DB20260828012143-70675"
+    },
+    {
+     "price_per_wan": 0.2522,
+     "qty_min": 142,
+     "qty_max": 142,
+     "shop_number": "DB20260828012055-70617"
+    },
+    {
+     "price_per_wan": 0.2531,
+     "qty_min": 350,
+     "qty_max": 350,
+     "shop_number": "DB20260828012241-36730"
+    },
+    {
+     "price_per_wan": 0.2532,
+     "qty_min": 400,
+     "qty_max": 400,
+     "shop_number": "DB20260828011730-62293"
+    },
+    {
+     "price_per_wan": 0.2532,
+     "qty_min": 400,
+     "qty_max": 400,
+     "shop_number": "DB20260804033730-29273"
+    },
+    {
+     "price_per_wan": 0.2534,
+     "qty_min": 540,
+     "qty_max": 540,
+     "shop_number": "DB20260826225810-58264"
+    },
+    {
+     "price_per_wan": 0.257,
+     "qty_min": 405,
+     "qty_max": 405,
+     "shop_number": "DB20260828012109-71640"
+    },
+    {
+     "price_per_wan": 0.2571,
+     "qty_min": 230,
+     "qty_max": 230,
+     "shop_number": "DB20260823120048-16062"
+    },
+    {
+     "price_per_wan": 0.258,
+     "qty_min": 270,
+     "qty_max": 270,
+     "shop_number": "DB20260828002731-96183"
+    },
+    {
+     "price_per_wan": 0.258,
+     "qty_min": 300,
+     "qty_max": 300,
+     "shop_number": "JS20260828011633-14120"
+    },
+    {
+     "price_per_wan": 0.258,
+     "qty_min": 300,
+     "qty_max": 300,
+     "shop_number": "DB20260828010457-77535"
+    },
+    {
+     "price_per_wan": 0.259,
+     "qty_min": 500,
+     "qty_max": 500,
+     "shop_number": "DB20260828003723-50221"
+    },
+    {
+     "price_per_wan": 0.2595,
+     "qty_min": 402,
+     "qty_max": 402,
+     "shop_number": "DB20260828010120-89128"
+    },
+    {
+     "price_per_wan": 0.2597,
+     "qty_min": 135,
+     "qty_max": 135,
+     "shop_number": "DB20260828003734-78234"
+    },
+    {
+     "price_per_wan": 0.26,
+     "qty_min": 600,
+     "qty_max": 600,
+     "shop_number": "DB20260828012019-49574"
+    },
+    {
+     "price_per_wan": 0.2604,
+     "qty_min": 250,
+     "qty_max": 250,
+     "shop_number": "DB20260828012117-96646"
+    },
+    {
+     "price_per_wan": 0.262,
+     "qty_min": 650,
+     "qty_max": 650,
+     "shop_number": "DB20260828011203-26650"
+    },
+    {
+     "price_per_wan": 0.2625,
+     "qty_min": 8200,
+     "qty_max": 8200,
+     "shop_number": "DB20260827235817-11990"
+    },
+    {
+     "price_per_wan": 0.2632,
+     "qty_min": 800,
+     "qty_max": 800,
+     "shop_number": "JS20260828010328-45023"
+    },
+    {
+     "price_per_wan": 0.2632,
+     "qty_min": 400,
+     "qty_max": 400,
+     "shop_number": "DB20260828000105-77077"
+    },
+    {
+     "price_per_wan": 0.2632,
+     "qty_min": 380,
+     "qty_max": 380,
+     "shop_number": "DB20260827182536-67983"
+    },
+    {
+     "price_per_wan": 0.2632,
+     "qty_min": 180,
+     "qty_max": 180,
+     "shop_number": "DB20260827175922-98876"
+    },
+    {
+     "price_per_wan": 0.2632,
+     "qty_min": 50,
+     "qty_max": 150,
+     "shop_number": "DB20260811203635-49788"
+    },
+    {
+     "price_per_wan": 0.265,
+     "qty_min": 1000,
+     "qty_max": 1000,
+     "shop_number": "DB20260828012208-75697"
+    },
+    {
+     "price_per_wan": 0.265,
+     "qty_min": 1500,
+     "qty_max": 1500,
+     "shop_number": "DB20260828011818-46364"
+    },
+    {
+     "price_per_wan": 0.265,
+     "qty_min": 200,
+     "qty_max": 200,
+     "shop_number": "DB20260828011409-10945"
+    },
+    {
+     "price_per_wan": 0.265,
+     "qty_min": 1200,
+     "qty_max": 1200,
+     "shop_number": "DB20260828005244-14880"
+    },
+    {
+     "price_per_wan": 0.265,
+     "qty_min": 300,
+     "qty_max": 300,
+     "shop_number": "DB20260827232022-55841"
+    },
+    {
+     "price_per_wan": 0.2667,
+     "qty_min": 395,
+     "qty_max": 395,
+     "shop_number": "DB20260827173342-41416"
+    },
+    {
+     "price_per_wan": 0.2667,
+     "qty_min": 600,
+     "qty_max": 600,
+     "shop_number": "DB20260813004727-65113"
+    },
+    {
+     "price_per_wan": 0.2669,
+     "qty_min": 1500,
+     "qty_max": 1500,
+     "shop_number": "DB20260826215103-61884"
+    },
+    {
+     "price_per_wan": 0.268,
+     "qty_min": 5580,
+     "qty_max": 5580,
+     "shop_number": "DB20260828005153-73800"
+    },
+    {
+     "price_per_wan": 0.2681,
+     "qty_min": 500,
+     "qty_max": 500,
+     "shop_number": "DB20260828010129-52146"
+    },
+    {
+     "price_per_wan": 0.2681,
+     "qty_min": 500,
+     "qty_max": 500,
+     "shop_number": "DB20260810212402-49347"
+    },
+    {
+     "price_per_wan": 0.269,
+     "qty_min": 650,
+     "qty_max": 650,
+     "shop_number": "DB20260827211515-16274"
+    },
+    {
+     "price_per_wan": 0.269,
+     "qty_min": 5000,
+     "qty_max": 5000,
+     "shop_number": "DB20260827232604-16303"
+    },
+    {
+     "price_per_wan": 0.27,
+     "qty_min": 3000,
+     "qty_max": 3000,
+     "shop_number": "DB20260827222607-92362"
+    },
+    {
+     "price_per_wan": 0.27,
+     "qty_min": 300,
+     "qty_max": 300,
+     "shop_number": "DB20260827144000-41109"
+    },
+    {
+     "price_per_wan": 0.2703,
+     "qty_min": 100,
+     "qty_max": 600,
+     "shop_number": "DB20260826233626-15178"
+    },
+    {
+     "price_per_wan": 0.2708,
+     "qty_min": 2000,
+     "qty_max": 2000,
+     "shop_number": "DB20260828002530-48082"
+    },
+    {
+     "price_per_wan": 0.274,
+     "qty_min": 10,
+     "qty_max": 180,
+     "shop_number": "DB20260824152707-40497"
+    },
+    {
+     "price_per_wan": 0.275,
+     "qty_min": 5000,
+     "qty_max": 13000,
+     "shop_number": "DB20260827195200-25444"
+    },
+    {
+     "price_per_wan": 0.2774,
+     "qty_min": 1000,
+     "qty_max": 10000,
+     "shop_number": "DB20260814214439-23951"
+    },
+    {
+     "price_per_wan": 0.2778,
+     "qty_min": 2100,
+     "qty_max": 2100,
+     "shop_number": "DB20260828011451-24016"
+    },
+    {
+     "price_per_wan": 0.2778,
+     "qty_min": 1000,
+     "qty_max": 3000,
+     "shop_number": "DB20260828004211-93749"
+    },
+    {
+     "price_per_wan": 0.28,
+     "qty_min": 100,
+     "qty_max": 100,
+     "shop_number": "DB20260826123437-21137"
+    },
+    {
+     "price_per_wan": 0.28,
+     "qty_min": 1000,
+     "qty_max": 23000,
+     "shop_number": "DB20260819233109-14547"
+    },
+    {
+     "price_per_wan": 0.2832,
+     "qty_min": 6000,
+     "qty_max": 6000,
+     "shop_number": "DB20260827190814-79900"
+    },
+    {
+     "price_per_wan": 0.2857,
+     "qty_min": 100,
+     "qty_max": 300,
+     "shop_number": "DB20260825110809-69573"
+    },
+    {
+     "price_per_wan": 0.289,
+     "qty_min": 5000,
+     "qty_max": 10000,
+     "shop_number": "DB20260823225939-35624"
+    },
+    {
+     "price_per_wan": 0.289,
+     "qty_min": 10000,
+     "qty_max": 20000,
+     "shop_number": "DB20260823225859-86503"
+    },
+    {
+     "price_per_wan": 0.29,
+     "qty_min": 100,
+     "qty_max": 1000,
+     "shop_number": "DB20260825043412-57319"
+    },
+    {
+     "price_per_wan": 0.2941,
+     "qty_min": 1,
+     "qty_max": 500,
+     "shop_number": "DB20260826212403-81336"
+    },
+    {
+     "price_per_wan": 0.2941,
+     "qty_min": 1000,
+     "qty_max": 1000,
+     "shop_number": "DB20260820160647-83528"
+    },
+    {
+     "price_per_wan": 0.2941,
+     "qty_min": 180,
+     "qty_max": 180,
+     "shop_number": "DB20260825095655-24043"
+    },
+    {
+     "price_per_wan": 0.3,
+     "qty_min": 100,
+     "qty_max": 100,
+     "shop_number": "DB20260828000035-33035"
+    },
+    {
+     "price_per_wan": 0.3,
+     "qty_min": 500,
+     "qty_max": 1500,
+     "shop_number": "DB20260824153114-71867"
+    },
+    {
+     "price_per_wan": 0.303,
+     "qty_min": 600,
+     "qty_max": 600,
+     "shop_number": "DB20260827105925-41484"
+    },
+    {
+     "price_per_wan": 0.32,
+     "qty_min": 100,
+     "qty_max": 300,
+     "shop_number": "DB20260822072301-36437"
+    },
+    {
+     "price_per_wan": 0.3802,
+     "qty_min": 2300,
+     "qty_max": 2300,
+     "shop_number": "DB20260827155332-97671"
+    },
+    {
+     "price_per_wan": 0.39,
+     "qty_min": 2000,
+     "qty_max": 40000,
+     "shop_number": "DB20260824172952-92627"
+    }
+   ]
   }
  ]
 }
